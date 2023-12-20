@@ -1,5 +1,6 @@
 {
   "name": "vld-ts",
+  "version": "0.0.1",
   "module": "lib/index.js",
   "type": "module",
   "devDependencies": {
