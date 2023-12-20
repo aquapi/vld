@@ -27,10 +27,10 @@ test('Object', () => {
 
 // Array type
 test('Array', () => {
-    const args = vld(t.arr(t.str));
+    const args = vld(t.arr(t.numeric));
 
-    expect(args(['a', 'c', 'b'])).not.toBeNull();
-    expect(args(['a', 15])).toBeNull();
+    expect(args(['a', 'c', 'b'])).toBeNull();
+    expect(args(['1', 15])).not.toBeNull();
 });
 
 // Tuple type
@@ -39,4 +39,21 @@ test('Tuple', () => {
 
     expect(tuple([0, '1'])).not.toBeNull();
     expect(tuple([1, '2'])).toBeNull();
+});
+
+// Record type
+test('Dictionary', () => {
+    const dict = vld(t.dict(t.numeric));
+
+    expect(dict({
+        '0': '2'
+    })).not.toBeNull();
+
+    expect(dict({
+        '1': 2
+    })).not.toBeNull();
+
+    expect(dict({
+        '2': 'a'
+    })).toBeNull();
 });

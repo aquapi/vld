@@ -4,9 +4,9 @@ export { t };
 export const vld = <T extends t.Validator>(t: T): (o: any) => t.Infer<T> | null => {
     const cast = t.cast,
         // Expression to compose
-        castExpr = cast ? `(${cast.macro ? cast.macro('o') : 'f(o)'})` : 'o',
+        castExpr = cast ? `o=${cast.macro ? cast.macro('o') : 'f(o)'}` : null,
         // Final expression
-        finalExpr = t.macro ? t.macro(castExpr) : `d(${castExpr})`,
+        finalExpr = t.macro ? t.macro('o') : `d(o)`,
         // Symbols to add to function scope
         symbols = [], symbolValues = [];
 
@@ -21,5 +21,6 @@ export const vld = <T extends t.Validator>(t: T): (o: any) => t.Infer<T> | null 
         symbolValues.push(t.f);
     }
 
-    return Function(...symbols, `return o=>${finalExpr}?o:null`)(...symbolValues);
+    return Function(...symbols, 'return o=>' + (castExpr === null ? '' : `{${castExpr};return `)
+        + `${finalExpr}?o:null` + (castExpr === null ? '' : '}'))(...symbolValues);
 }

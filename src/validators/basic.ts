@@ -47,7 +47,7 @@ export const numeric: Validator<number> = {
 /**
  * An exact value
  */
-export const val = <T>(v: T): Validator<T> => ({
-    macro: str => `${str}===${JSON.stringify(v)}`,
+export const val = <T>(v: T, serializable = true): Validator<T> => ({
+    macro: serializable ? str => `${str}===${JSON.stringify(v)}` : null,
     f: o => o === v
 });

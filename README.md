@@ -1,15 +1,19 @@
-# vld-ts
+# `vld-ts``
+A fast, lightweight validation library for all platform.
 
-To install dependencies:
+```ts
+import { t, vld } from 'vld-ts';
 
-```bash
-bun install
+// Create a schema
+const User = t.obj({
+    name: t.str,
+    age: t.num
+});
+
+// The type corresponding to the schema
+export type User = Infer<typeof User>;
+
+// Create a validation function from the type
+export const check = vld(User); // (o: any) => User | null
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

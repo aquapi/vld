@@ -12,7 +12,7 @@ const
 /**
  * Create an object validator
  */
-export const obj = <T extends Record<string | number, Validator>>(v: T): Validator<{
+export const obj = <T extends Record<string, Validator>>(v: T): Validator<{
     [key in keyof T]: Infer<T[key]>
 }> => {
     const conditions = [`typeof o==='object'&&o!==null`], casts = [],
@@ -68,7 +68,26 @@ export const obj = <T extends Record<string | number, Validator>>(v: T): Validat
  * Create an array validator
  */
 export const arr = <T extends Validator>(v: T): Validator<Infer<T>[]> => {
-    const fn = `return o=>{for(var v of o)if(!${v.macro ? `(${v.macro('v')})` : 'f(v)'})return false;return true}`;
+    const cast = v.cast,
+        // Store function scope symbols
+        symbols = [], symbolValues = [],
+        // Main func
+        fn = `return o=>{if(!Array.isArray(o))return false;`
+            + `for(var v of o)` + (cast ? `{v=${cast.macro ? cast.macro('v') : 'd(v)'};` : '')
+            + `if(!${v.macro ? `(${v.macro('v')})` : 'f(v)'})return false`
+            + (cast ? '}' : ';')
+            + `return true}`;
+
+    // Macro check
+    if (!v.macro) {
+        symbols.push('f');
+        symbolValues.push(v.f);
+    }
+
+    if (cast && !cast.macro) {
+        symbols.push('d');
+        symbolValues.push(cast.f);
+    }
 
     return {
         f: v.macro ? Function(fn)() : Function('f', fn)(v.f)
@@ -82,5 +101,40 @@ type Spread<T extends Validator[]> = T extends [infer Current, ...infer Rest]
 /**
  * Create a tuple validator
  */
-// @ts-ignore
-export const tuple = <T extends Validator[]>(...v: T): Validator<Spread<T>> => obj(v);
+export const tuple = <T extends Validator[]>(...v: T): Validator<Spread<T>> =>
+    // @ts-ignore
+    obj(v);
+
+/**
+ * Create a dictionary validator
+ */
+export const dict = <V extends Validator>(v: V): Validator<Record<string, Infer<V>>> => {
+    const
+        cast = v.cast,
+
+        // Create the function body
+        fn = `return o=>{if(typeof o!=='object')return false;`
+            + `for(var k in o)` + (cast ? `{o[k]=${cast.macro ? cast.macro('o[k]') : 'a(o[k])'};` : '')
+            + `if(!(${v.macro ? v.macro('o[k]') : 'b(o[k])'}))return false`
+            + (cast ? '}' : ';')
+            + `return true}`,
+
+        // Store function scope symbols
+        symbols = [],
+        symbolValues = [];
+
+    // Macro check
+    if (cast && !cast.macro) {
+        symbols.push('a');
+        symbolValues.push(cast.f);
+    }
+
+    if (!v.macro) {
+        symbols.push('b');
+        symbolValues.push(v.f);
+    }
+
+    return {
+        f: Function(...symbols, fn)(...symbolValues)
+    };
+};
