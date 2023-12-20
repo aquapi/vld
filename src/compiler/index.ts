@@ -12,6 +12,8 @@ export const vld = (schema: Schema): ParserResult => {
             // Type with no additional thing
             case 'null': return nullVld;
             case 'boolean': return boolVld;
+
+            // TODO: Need more type
         }
 
     // Validate enum types
