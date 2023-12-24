@@ -8,7 +8,7 @@ export interface ParserResult {
 };
 
 export const macro = (f: Macro) => {
-    const t = Function(`return o=>${f(o)}`)();
+    const t = Function(`return o=>${f('o')}`)();
     t.macro = f;
 
     return t;

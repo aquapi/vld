@@ -6,45 +6,34 @@ export interface ObjectProperties extends Record<string, Schema> { };
 /**
  * Represent an object
  */
-export interface ObjectSchema extends BasicSchema {
+export interface ObjectSchema<Properties extends ObjectProperties = ObjectProperties> {
     type: 'object';
 
-    properties?: ObjectProperties;
-    patternProperties?: ObjectProperties;
+    properties: Properties;
 
-    additionalProperties?: boolean;
-
-    minProperties?: number;
-    maxProperties?: number;
-
-    propertyNames?: StringSchema;
     required?: string[];
 }
 
 /**
  * Represent an array
  */
-export interface ArraySchema extends BasicSchema {
+export interface ArraySchema<
+    Item extends Schema | boolean = Schema | boolean,
+    PrefixItems extends Schema[] = Schema[]
+> {
     type: 'array';
 
-    items?: Schema | boolean;
-    prefixItems?: Schema[];
-    unevaluatedItems?: Schema | boolean;
-    contains?: Schema;
-
-    minContains?: number;
-    maxContains?: number;
+    items?: Item;
+    prefixItems?: PrefixItems;
 
     minItems?: number;
     maxItems?: number;
-
-    uniqueItems?: boolean;
 }
 
 /**
  * Represent a number
  */
-export interface NumericSchema extends BasicSchema {
+export interface NumericSchema {
     type: 'number' | 'integer';
 
     multipleOf?: number;
@@ -54,19 +43,24 @@ export interface NumericSchema extends BasicSchema {
 
     maximum?: number;
     exclusiveMaximum?: number;
+
+    /**
+     * Non-standard property. 
+     * This tells the macro to use `typeof` instead of `Number.isFinite` to validate
+     */
+    nonFinite?: boolean;
 }
 
 /**
  * Represent a string
  */
-export interface StringSchema extends BasicSchema {
+export interface StringSchema {
     type: 'string';
 
     minLength?: number;
     maxLength?: number;
 
     pattern?: string;
-    format?: StringFormat;
 }
 
 /**
@@ -95,27 +89,27 @@ export interface ConstSchema<T extends Value = Value> {
 /**
  * Basic stuff
  */
-export interface BasicSchema {
-    oneOf?: Schema[];
-    allOf?: Schema[];
-    anyOf?: Schema[];
+export type LogicSchema = {
+    oneOf: Schema[];
+} | {
+    allOf: Schema[];
+} | {
+    anyOf: Schema[];
 }
 
 /**
- * All string format
+ * Non-standard property for properies in object
  */
-export type StringFormat =
-    'date-time' | 'time' | 'date' | 'duration' |
-    `${'' | 'idn-'}${'email' | 'hostname'}` |
-    `ipv${4 | 6}` | 'uuid' | `iri${'' | '-reference'}` |
-    `uri${'' | `-${'reference' | 'template'}`}`
+export interface FieldNotation {
+    optional?: boolean;
+}
 
 /**
  * Schema type
  */
 export type Schema = (
     ObjectSchema | ArraySchema | BoolSchema | NullSchema |
-    NumericSchema | StringSchema | EnumSchema | ConstSchema
+    NumericSchema | StringSchema | EnumSchema | ConstSchema | LogicSchema
 );
 
 /**
