@@ -6,12 +6,15 @@ export interface ObjectProperties extends Record<string, Schema> { };
 /**
  * Represent an object
  */
-export interface ObjectSchema<Properties extends ObjectProperties = ObjectProperties> {
+export interface ObjectSchema<
+    Properties extends ObjectProperties = ObjectProperties,
+    Required extends string[] = []
+> {
     type: 'object';
 
     properties: Properties;
 
-    required?: string[];
+    required?: Required;
 }
 
 /**
@@ -19,7 +22,7 @@ export interface ObjectSchema<Properties extends ObjectProperties = ObjectProper
  */
 export interface ArraySchema<
     Item extends Schema | boolean = Schema | boolean,
-    PrefixItems extends Schema[] = Schema[]
+    PrefixItems extends Schema[] = []
 > {
     type: 'array';
 
@@ -87,21 +90,24 @@ export interface ConstSchema<T extends Value = Value> {
 }
 
 /**
- * Basic stuff
+ * AND logic schema
  */
-export type LogicSchema = {
-    oneOf: Schema[];
-} | {
-    allOf: Schema[];
-} | {
-    anyOf: Schema[];
+export interface AndSchema<T extends Schema[] = []> {
+    allOf: T;
+}
+
+/**
+ * OR logic schema
+ */
+export interface OrSchema<T extends Schema[] = []> {
+    anyOf: T;
 }
 
 /**
  * Non-standard property for properies in object
  */
-export interface FieldNotation {
-    optional?: boolean;
+export interface FieldNotation<Optional extends boolean = false> {
+    optional?: Optional;
 }
 
 /**
@@ -109,7 +115,8 @@ export interface FieldNotation {
  */
 export type Schema = (
     ObjectSchema | ArraySchema | BoolSchema | NullSchema |
-    NumericSchema | StringSchema | EnumSchema | ConstSchema | LogicSchema
+    NumericSchema | StringSchema | EnumSchema | ConstSchema |
+    AndSchema | OrSchema
 );
 
 /**

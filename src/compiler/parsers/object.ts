@@ -1,4 +1,4 @@
-import { vld } from '..';
+import vld from '..';
 
 import { ObjectSchema } from '../../schema/types';
 import { ParserResult } from './types';

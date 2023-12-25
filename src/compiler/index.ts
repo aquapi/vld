@@ -13,7 +13,7 @@ const
     nullVld = macro(l => `${l}===null`),
     boolVld = macro(l => `typeof ${l}==='boolean'`);
 
-export const vld = (schema: Schema): ParserResult => {
+export default (schema: Schema): ParserResult => {
     // Validate normal types
     if ('type' in schema)
         switch (schema.type) {
@@ -43,12 +43,3 @@ export const vld = (schema: Schema): ParserResult => {
     if ('const' in schema)
         return parseConstants(schema);
 }
-
-console.log(vld({
-    type: 'object',
-    properties: {
-        name: { type: 'string' },
-        age: { type: 'number', exclusiveMinimum: 0, nonFinite: true }
-    },
-    required: ['name', 'age']
-}).toString())

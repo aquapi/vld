@@ -1,8 +1,7 @@
-import { vld } from '..';
+import vld from '..';
 import { ArraySchema, Schema } from '../../schema/types';
 import { ParserResult } from './types';
 import expandMacro from './utils/expandMacro';
-
 import SymbolSet from './utils/symbols';
 
 export default (schema: ArraySchema) => {
