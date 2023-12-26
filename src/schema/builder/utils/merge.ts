@@ -3,5 +3,6 @@ export default <A, B>(a: A, b: B): A & B => {
         // @ts-ignore
         a[key] = b[key];
 
+    // @ts-ignore
     return a;
 }
