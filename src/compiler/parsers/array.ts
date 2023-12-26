@@ -35,15 +35,21 @@ export default (schema: ArraySchema) => {
     const
         hasPrefixItems = schema.prefixItems && schema.prefixItems.length > 0,
         // Check
-        loop = hasPrefixItems
-            ? `let l=o.length,i=${schema.prefixItems.length};while(i<l)`
-            : `let i;for(i of o)`,
         condition = `if(!(${expandMacro(
             vld(schema.items), symbols, hasPrefixItems ? 'o[i]' : 'i'
-        )}))`;
+        )}))return false;`,
+        // Function parts
+        parts = [`return o=>{`];
 
-    return symbols.inject(
-        `return o=>{if(!(${conditions.join('&&')}))return false;` + loop +
-        (hasPrefixItems ? `{${condition}++i}` : condition)
+    // Check for extra condition
+    if (conditions.length !== 0)
+        parts.push(`if(!(${conditions.join('&&')}))return false;`);
+
+    // Check for tuple type
+    parts.push(hasPrefixItems
+        ? `let l=o.length,i=${schema.prefixItems.length};while(i<l){${condition}++i}`
+        : `let i;for(i of o)` + condition, 'return true}'
     );
+
+    return symbols.inject(parts.join(''));
 }

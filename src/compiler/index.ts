@@ -1,4 +1,4 @@
-import { FieldNotation, Schema } from '../schema/types';
+import { Schema } from '../schema/types';
 
 import parseConstants from './parsers/consts';
 import parseEnum from './parsers/enum';
