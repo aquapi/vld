@@ -114,9 +114,9 @@ export interface FieldNotation<Optional extends boolean = false> {
  * Schema type
  */
 export type Schema = (
-    ObjectSchema | ArraySchema | BoolSchema | NullSchema |
-    NumericSchema | StringSchema | EnumSchema | ConstSchema |
-    AndSchema | OrSchema
+    ObjectSchema<any, any> | ArraySchema<any, any> | BoolSchema | NullSchema |
+    NumericSchema | StringSchema | EnumSchema<any> | ConstSchema<any> |
+    AndSchema<any> | OrSchema<any>
 );
 
 /**

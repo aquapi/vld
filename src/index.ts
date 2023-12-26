@@ -1,9 +1,7 @@
-import t from './schema/builder';
 import f from './compiler';
-import { Schema } from './schema/types';
-import { Infer } from './schema/infer';
+import { Schema, Infer } from './schema';
 
-export { t };
+export * from './schema';
 
 /**
  * Create a validator

@@ -17,12 +17,12 @@ export type Infer<T> = T extends NumericSchema ? number : (
     T extends StringSchema ? string : (
         T extends BoolSchema ? boolean : (
             T extends NullSchema ? null : (
-                T extends EnumSchema ? SpreadEnum<T['enum']> : (
-                    T extends ConstSchema ? T['const'] : (
-                        T extends ObjectSchema ? ObjectInfer<T> : (
-                            T extends ArraySchema ? ArrayInfer<T> : (
-                                T extends AndSchema ? SpreadAnd<T['allOf']> : (
-                                    T extends OrSchema ? SpreadOr<T['anyOf']> : never
+                T extends EnumSchema<any> ? SpreadEnum<T['enum']> : (
+                    T extends ConstSchema<any> ? T['const'] : (
+                        T extends ObjectSchema<any, any> ? ObjectInfer<T> : (
+                            T extends ArraySchema<any, any> ? ArrayInfer<T> : (
+                                T extends AndSchema<any> ? SpreadAnd<T['allOf']> : (
+                                    T extends OrSchema<any> ? SpreadOr<T['anyOf']> : never
                                 )
                             )
                         )
@@ -33,9 +33,10 @@ export type Infer<T> = T extends NumericSchema ? number : (
     )
 );
 
-// Infer idividual types
-export type ObjectInfer<T extends ObjectSchema> = {
-    [key in Exclude<keyof T['properties'], T['required'][number]>]?: Infer<T['properties'][key]>;
-} & { [key in And<keyof T['properties'], T['required'][number]>]: Infer<T['properties'][key]>; };
+export type RawObjectInfer<Properties extends object, Required extends string> = {
+    [key in Exclude<keyof Properties, Required>]?: Infer<Properties[key]>;
+} & { [key in And<keyof Properties, Required>]: Infer<Properties[key]>; };
+
+export type ObjectInfer<T extends ObjectSchema> = RawObjectInfer<T['properties'], T['required'][number]>;
 
 export type ArrayInfer<T extends ArraySchema> = [...InferEach<T['prefixItems']>, ...(Infer<T['items']>)[]];

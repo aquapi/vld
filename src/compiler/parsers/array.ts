@@ -4,6 +4,7 @@ import { ParserResult } from './types';
 import expandMacro from './utils/expandMacro';
 import SymbolSet from './utils/symbols';
 
+// TODO: Inline tuple if possible
 export default (schema: ArraySchema) => {
     const conditions = [],
         symbols = new SymbolSet<ParserResult>;

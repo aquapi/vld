@@ -18,6 +18,11 @@ export default class SymbolSet<T = any> {
     }
 
     /**
+     * Check whether there is no symbols
+     */
+    empty = () => this.names.length === 0;
+
+    /**
      * Create a function with all the dependencies injected 
      */
     inject = (fn: string): ParserResult => Function(...this.names, fn)(...this.values);
