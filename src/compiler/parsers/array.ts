@@ -6,7 +6,7 @@ import SymbolSet from './utils/symbols';
 
 // TODO: Inline tuple if possible
 export default (schema: ArraySchema) => {
-    const conditions = [],
+    const conditions = ['Array.isArray(o)'],
         symbols = new SymbolSet<ParserResult>;
 
     if (schema.minItems)
@@ -28,28 +28,8 @@ export default (schema: ArraySchema) => {
             conditions.push('o.length===' + schema.prefixItems.length);
     }
 
-    // Can be single line
-    if (!schema.items || schema.items === true)
-        return symbols.inject(`return o=>${conditions.join('&&')}`);
+    if (schema.items && schema.items !== true)
+        conditions.push(`o.every(${symbols.put(vld(schema.items))})`);
 
-    const
-        hasPrefixItems = schema.prefixItems && schema.prefixItems.length > 0,
-        // Check
-        condition = `if(!(${expandMacro(
-            vld(schema.items), symbols, hasPrefixItems ? 'o[i]' : 'i'
-        )}))return false;`,
-        // Function parts
-        parts = [`return o=>{`];
-
-    // Check for extra condition
-    if (conditions.length !== 0)
-        parts.push(`if(!(${conditions.join('&&')}))return false;`);
-
-    // Check for tuple type
-    parts.push(hasPrefixItems
-        ? `let l=o.length,i=${schema.prefixItems.length};while(i<l){${condition}++i}`
-        : `let i;for(i of o)` + condition, 'return true}'
-    );
-
-    return symbols.inject(parts.join(''));
+    return symbols.inject(`return o=>${conditions.join('&&')}`);
 }
