@@ -28,8 +28,29 @@ export default (schema: ArraySchema) => {
             conditions.push('o.length===' + schema.prefixItems.length);
     }
 
-    if (schema.items && schema.items !== true)
-        conditions.push(`o.every(${symbols.put(vld(schema.items))})`);
+    // Can be single line
+    if (!schema.items || schema.items === true)
+        return symbols.inject(`return o=>${conditions.join('&&')}`);
 
+    if (schema.prefixItems && schema.prefixItems.length > 0) {
+        const
+            // Check
+            condition = `if(!(${expandMacro(
+                vld(schema.items), symbols, 'o[i]'
+            )}))return false;`,
+            // Function parts
+            parts = [`return o=>{`];
+
+        // Check for extra condition
+        parts.push(`if(!(${conditions.join('&&')}))return false;`);
+
+        // Check for tuple type
+        parts.push(`let l=o.length-1;while(l>${schema.prefixItems.length - 1}){${condition}--i}`);
+
+        return symbols.inject(parts.join(''));
+    }
+
+    // Optimization for schema.items
+    conditions.push(`o.every(${symbols.put(vld(schema.items))})`);
     return symbols.inject(`return o=>${conditions.join('&&')}`);
 }
